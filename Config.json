@@ -1,0 +1,54 @@
+{
+    "node_count": 4,
+    "nodes": [
+        {
+            "node_id": "node1",
+            "management_ip": "190.168.220.21",
+            "password": "password",
+            "username": "adminuser",
+            "network_controllers": [
+                "1af4:1041"
+            ],
+            "storage_controllers": [
+                "1af4:1048",
+                "1af4:1048"
+            ]
+        },
+        {
+            "node_id": "node2",
+            "management_ip": "190.168.220.22",
+            "password": "password",
+            "username": "adminuser",
+            "network_controllers": [
+                "1af4:1041"
+            ],
+            "storage_controllers": [
+                "1af4:1048"
+            ]
+        },
+        {
+            "node_id": "node3",
+            "management_ip": "190.168.220.23",
+            "password": "password",
+            "username": "adminuser",
+            "network_controllers": [
+                "1af4:1041"
+            ],
+            "storage_controllers": [
+                "1af4:1048"
+            ]
+        },
+        {
+            "node_id": "node4",
+            "management_ip": "190.168.220.24",
+            "password": "password",
+            "username": "adminuser",
+            "network_controllers": [
+                "1af4:1041"
+            ],
+            "storage_controllers": [
+                "1af4:1048"
+            ]
+        }
+    ]
+}
