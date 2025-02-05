@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_director
+from flask import Flask, request, jsonify, send_from_directory
 import json
 import os
 
