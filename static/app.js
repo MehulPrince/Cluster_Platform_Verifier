@@ -1,7 +1,8 @@
 let nodeCount = 1;
 
-// Constant password for all nodes
+// Constant password and username for all nodes
 const CONSTANT_PASSWORD = "password";
+const CONSTANT_USERNAME = "adminuser";
 
 // Function to add a new node box
 function addNodeBox(nodeData = {}) {
@@ -125,6 +126,7 @@ document.getElementById("save-button").addEventListener("click", () => {
       node_id: nodeId,
       management_ip: managementIp,
       password: CONSTANT_PASSWORD,
+      username: CONSTANT_USERNAME, // Add constant username
       network_controllers: networkControllers,
       storage_controllers: storageControllers
     });
@@ -163,8 +165,9 @@ document.getElementById("execute-button").addEventListener("click", () => {
   })
     .then(response => response.json())
     .then(data => {
-      if (data.message) {
-        window.location.href = "/output_page";
+      if (data.redirect) {
+        // Redirect to the output page
+        window.location.href = data.redirect;
       } else if (data.error) {
         alert("Error: " + data.error);
       }
