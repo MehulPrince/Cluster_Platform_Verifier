@@ -1,82 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Platform Execution Output</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        pre {
-            background: #f9f9f9;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: monospace;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        .back-button {
-            display: block;
-            width: 100px;
-            margin: 20px auto;
-            padding: 10px;
-            text-align: center;
-            background: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .back-button:hover {
-            background: #0056b3;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Platform Verifier</title>
+  <link rel="icon" href="https://www.acceleronlabs.com/wp-content/uploads/2024/07/favicon.png" sizes="32x32">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="https://www.acceleronlabs.com/wp-content/uploads/2024/07/favicon.png" sizes="192x192">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Platform Execution Output</h1>
-        <pre id="output-content">Loading...</pre>
-        <a href="/" class="back-button">Back</a>
-    </div>
+  <h2>Platform Verifier</h2>
+  <div class="container">
+    <div id="nodes-container">
+      <!-- Node boxes will be dynamically added here -->
+    </div class = "button-container">
+    <button id="add-node">+ Add Node</button>
+    <button id="remove-node">- Remove Node</button>
+    <button id="save-button">Save</button>
+    <button id="execute-button">Execute</button>
+  </div>
 
-    <script>
-        // Fetch the content of output.txt and display it
-        fetch('/get_output')
-            .then(response => response.json())
-            .then(data => {
-                if (data.output) {
-                    // Display the content of output.txt
-                    document.getElementById('output-content').textContent = data.output;
-                } else if (data.error) {
-                    // Display an error message if output.txt is not found
-                    document.getElementById('output-content').textContent = "Error: " + data.error;
-                }
-            })
-            .catch(error => {
-                // Handle fetch errors
-                document.getElementById('output-content').textContent = "Failed to load output.";
-                console.error(error);
-            });
-    </script>
+  <script src="app.js"></script>
 </body>
 </html>
