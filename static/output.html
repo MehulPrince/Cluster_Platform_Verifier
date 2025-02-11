@@ -1,40 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Execution Output</title>
-  <link rel="stylesheet" href="output.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Execution Output</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        pre {
+            background: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .back-button {
+            display: block;
+            width: 100px;
+            margin: 20px auto;
+            padding: 10px;
+            text-align: center;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .back-button:hover {
+            background: #0056b3;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Execution Output</h1>
-      <button id="back-button" onclick="goBack()">Back to Config</button>
-    </header>
+    <div class="container">
+        <h1>Platform Execution Output</h1>
+        <pre id="output-content">Loading...</pre>
+        <a href="/" class="back-button">Back</a>
+    </div>
 
-    <section id="output-section">
-      <h2>Platform Script Output</h2>
-      <pre id="output-content">Loading...</pre>
-    </section>
-  </div>
-
-  <script>
-    // Fetch the output from the server (output.txt file)
-    fetch('/output.txt')
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById('output-content').textContent = data;
-      })
-      .catch(error => {
-        document.getElementById('output-content').textContent = "Error loading output.";
-        console.error("Error fetching output.txt:", error);
-      });
-
-    // Function to navigate back to the configuration page
-    function goBack() {
-      window.location.href = '/';
-    }
-  </script>
+    <script>
+        // Fetch the content of output.txt and display it
+        fetch('/get_output')
+            .then(response => response.json())
+            .then(data => {
+                if (data.output) {
+                    // Display the content of output.txt
+                    document.getElementById('output-content').textContent = data.output;
+                } else if (data.error) {
+                    // Display an error message if output.txt is not found
+                    document.getElementById('output-content').textContent = "Error: " + data.error;
+                }
+            })
+            .catch(error => {
+                // Handle fetch errors
+                document.getElementById('output-content').textContent = "Failed to load output.";
+                console.error(error);
+            });
+    </script>
 </body>
 </html>
