@@ -4,28 +4,35 @@ import json
 import paramiko
 import platform
 
+
 def install_paramiko():
     """Check if paramiko is installed, and install it if not."""
     try:
         import paramiko
     except ImportError:
         print("Paramiko not found. Installing...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "paramiko"])
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "paramiko"])
+
 
 # Call the install function before running the rest of your script
 install_paramiko()
+
 
 def ping_node(ip):
     """Ping a node and return True if reachable, else False."""
     try:
         if platform.system().lower() == "windows":
-            result = subprocess.run(["ping", "-n", "3", ip], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            result = subprocess.run(
+                ["ping", "-n", "3", ip], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         else:
-            result = subprocess.run(["ping", "-c", "3", ip], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            result = subprocess.run(
+                ["ping", "-c", "3", ip], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return result.returncode == 0
     except Exception as e:
         print(f"Ping error: {e}")
         return False
+
 
 def get_interfaces_via_ssh(ip, username, password):
     """Retrieve network interfaces from a node via SSH."""
@@ -35,7 +42,8 @@ def get_interfaces_via_ssh(ip, username, password):
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(ip, username=username, password=password)
 
-        stdin, stdout, stderr = ssh.exec_command("ip -o link show | awk -F': ' '{print $2}'")
+        stdin, stdout, stderr = ssh.exec_command(
+            "ip -o link show | awk -F': ' '{print $2}'")
         interfaces = stdout.read().decode().splitlines()
 
     except Exception as e:
@@ -43,6 +51,7 @@ def get_interfaces_via_ssh(ip, username, password):
     finally:
         ssh.close()
     return interfaces
+
 
 def configure_interfaces(ip, username, password, interfaces, node_number):
     """Generate and configure interface IPs via SSH."""
@@ -68,6 +77,7 @@ def configure_interfaces(ip, username, password, interfaces, node_number):
         ssh.close()
     return configurations
 
+
 def get_disk_details_via_ssh(ip, username, password):
     """Retrieve disk details from a node via SSH."""
     disk_details = ""
@@ -77,7 +87,8 @@ def get_disk_details_via_ssh(ip, username, password):
         ssh.connect(ip, username=username, password=password)
 
         # Use `lsblk` to get disk details
-        stdin, stdout, stderr = ssh.exec_command("lsblk -o NAME,SIZE,TYPE,MOUNTPOINT")
+        stdin, stdout, stderr = ssh.exec_command(
+            "lsblk -o NAME,SIZE,TYPE,MOUNTPOINT")
         disk_details = stdout.read().decode()
 
     except Exception as e:
@@ -85,6 +96,7 @@ def get_disk_details_via_ssh(ip, username, password):
     finally:
         ssh.close()
     return disk_details
+
 
 def check_pci_devices_via_ssh(ip, username, password, pci_devices):
     """Check if specified PCI devices are present on the node."""
@@ -116,8 +128,9 @@ def check_pci_devices_via_ssh(ip, username, password, pci_devices):
         ssh.close()
     return pci_results
 
+
 def run_fio_test_via_ssh(ip, username, password, io_pattern="randwrite", block_size="1B", numjobs=8, size="100M", runtime=10):
-    """Run fio benchmark on a node via SSH and return the results."""
+    """Run fio benchmark on a node via SSH and return the parsed results."""
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -151,20 +164,20 @@ def run_fio_test_via_ssh(ip, username, password, io_pattern="randwrite", block_s
             
             # Extract relevant results (IOPS, Throughput, Latency, CPU usage)
             job_data = fio_result['jobs'][0]
-            iops = job_data['read']['iops'] + job_data['write']['iops']
-            throughput = (job_data['read']['bw'] + job_data['write']['bw']) / 1024  # Convert to KB/s
-            latency_avg = (job_data['read']['lat_ns']['mean'] + job_data['write']['lat_ns']['mean']) / 1000  # Convert to microseconds
-            latency_95th = (job_data['read']['lat_ns']['percentile']['95.000000'] + job_data['write']['lat_ns']['percentile']['95.000000']) / 1000  # Convert to microseconds
+            read_iops = job_data['read']['iops']
+            write_iops = job_data['write']['iops']
+            read_latency = job_data['read']['lat_ns']['mean'] / 1000  # Convert to microseconds
+            write_latency = job_data['write']['lat_ns']['mean'] / 1000  # Convert to microseconds
             cpu_usage = job_data['usr_cpu'] + job_data['sys_cpu']  # Total CPU usage
 
-            fio_details = (
-                f"\nFio Benchmark Results:\n"
-                f"IOPS: {iops:.2f}\n"
-                f"Throughput: {throughput:.2f} KB/s\n"
-                f"Average Latency: {latency_avg:.2f} us\n"
-                f"95th Percentile Latency: {latency_95th:.2f} us\n"
-                f"CPU Usage: {cpu_usage:.2f}%\n"
-            )
+            # Prepare parsed FIO data
+            fio_details = {
+                "read_iops": read_iops,
+                "write_iops": write_iops,
+                "read_latency_us": read_latency,
+                "write_latency_us": write_latency,
+                "cpu_usage_percent": cpu_usage
+            }
 
         except Exception as e:
             fio_details = f"Error parsing fio output: {e}\nRaw FIO Output:\n{fio_output}"
@@ -179,6 +192,7 @@ def run_fio_test_via_ssh(ip, username, password, io_pattern="randwrite", block_s
         ssh.close()
     return fio_details
 
+# Main function to run all checks
 def main():
     input_file = "Config.json"
     output_file = "output.txt"
@@ -244,20 +258,20 @@ def main():
 
                     # Run fio benchmark
                     fio_result = run_fio_test_via_ssh(management_ip, username, password)
-                    if fio_result:
-                        f.write(fio_result)
-                else:
-                    f.write("Interfaces: Node not reachable, no configurations applied.\n")
-                f.write("-" * 50 + "\n")
-
-        print(f"Details written to {output_file}")
+                    if fio_result and isinstance(fio_result, dict):
+                        f.write("\nFIO Benchmark Results:\n")
+                        f.write(f"  Read IOPS: {fio_result['read_iops']:.2f}\n")
+                        f.write(f"  Write IOPS: {fio_result['write_iops']:.2f}\n")
+                        f.write(f"  Read Latency: {fio_result['read_latency_us']:.2f} us\n")
+                        f.write(f"  Write Latency: {fio_result['write_latency_us']:.2f} us\n")
 
     except FileNotFoundError:
-        print(f"Error: The file {input_file} was not found.")
+        print(f"Error: The configuration file '{input_file}' was not found.")
     except json.JSONDecodeError:
-        print(f"Error: The file {input_file} contains invalid JSON.")
+        print(f"Error: Failed to parse the JSON configuration file '{input_file}'.")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
+# Run the main function if the script is executed directly
 if __name__ == "__main__":
     main()
