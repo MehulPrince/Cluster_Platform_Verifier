@@ -1,4 +1,4 @@
-let nodeCount = 1
+let nodeCount = 1;
 
 // Constant password and username for all nodes
 const CONSTANT_PASSWORD = "password";
